@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    
+    <!-- ===================================== -->
+    <!-- DÉPENDANCES DE TEST (SafeToIgnore)   -->
+    <!-- ===================================== -->
+    
+    <!-- JUnit et Spring Test - Utilisés uniquement en test -->
+    <suppress until="2025-12-31">
+        <notes><![CDATA[
+        JUnit est utilisé uniquement dans le scope 'test'.
+        N'a pas d'impact sur le runtime de production.
+        ]]></notes>
+        <gav regex="true">junit:junit:.*</gav>
+    </suppress>
+    
+    <suppress until="2025-12-31">
+        <notes><![CDATA[
+        Spring Test est utilisé uniquement pour les tests d'intégration.
+        Scope 'test' uniquement.
+        ]]></notes>
+        <gav regex="true">org\.springframework:spring-test:.*</gav>
+    </suppress>
+    
+    <!-- ===================================== -->
+    <!-- DÉPENDANCES INTERNES ANPMAÇON        -->
+    <!-- ===================================== -->
+    
+    <!-- JT400 (DB2 iSeries) - Évaluer la version 11.1 -->
+    <suppress until="2025-06-30">
+        <notes><![CDATA[
+        jt400 11.1 pour connexion DB2 iSeries.
+        Planifier la mise à niveau à la version 11.2+ après tests.
+        Suivi: ANPEDIX-1234
+        ]]></notes>
+        <gav regex="true">net\.sf\.jt400:jt400:11\.1</gav>
+    </suppress>
+    
+    <!-- ===================================== -->
+    <!-- FAUX POSITIFS CONNUS                 -->
+    <!-- ===================================== -->
+    
+    <!-- Exemple de suppression par CVE (à adapter selon vos résultats) -->
+    <!-- 
+    <suppress until="2025-12-31">
+        <notes><![CDATA[
+        CVE-XXXX-XXXXX: Cette vulnérabilité ne s'applique pas car:
+        - Notre code ne traverse pas le chemin d'code affecté
+        - La mitigation est appliquée au niveau Spring Security
+        - Configuration de WildFly prévient l'exploitation
+        Réf: https://nvd.nist.gov/vuln/detail/CVE-XXXX-XXXXX
+        ]]></notes>
+        <cve>CVE-XXXX-XXXXX</cve>
+    </suppress>
+    -->
+    
+    <!-- ===================================== -->
+    <!-- DÉPENDANCES INDIRECTES (Transitive)  -->
+    <!-- ===================================== -->
+    
+    <!-- Suppression de faux positifs en dépendances transitives de Spring Boot -->
+    <!-- À ajouter au fur et à mesure que l'outil les détecte -->
+    
+</suppressions>

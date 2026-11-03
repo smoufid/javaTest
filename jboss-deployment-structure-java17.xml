@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Configuration WildFly 26 optimisée pour Java 17
+    Spring Boot 2.7.18 + Jakarta EE
+
+    Ce fichier contrôle la dépendance aux modules globaux WildFly
+    et évite les conflits de classloader avec les dépendances du WAR.
+-->
+<jboss-deployment-structure>
+    <deployment>
+        <exclusions>
+            <!-- ========================================== -->
+            <!-- Jackson - Spring Boot gère les versions    -->
+            <!-- ========================================== -->
+            <module name="com.fasterxml.jackson.core.jackson-annotations"/>
+            <module name="com.fasterxml.jackson.core.jackson-core"/>
+            <module name="com.fasterxml.jackson.core.jackson-databind"/>
+            <module name="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider"/>
+            <module name="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base"/>
+
+            <!-- ========================================== -->
+            <!-- RESTEasy (Spring Boot utilise Spring MVC)  -->
+            <!-- ========================================== -->
+            <module name="org.jboss.resteasy.resteasy-core"/>
+            <module name="org.jboss.resteasy.resteasy-jaxrs"/>
+            <module name="org.jboss.resteasy.resteasy-jackson2-provider"/>
+            <module name="org.jboss.resteasy.resteasy-jackson-provider"/>
+            <module name="org.jboss.resteasy.resteasy-client"/>
+            <module name="org.jboss.resteasy.async-http-servlet-3.0"/>
+
+            <!-- ========================================== -->
+            <!-- Logging - Spring Boot utilise Logback      -->
+            <!-- ========================================== -->
+            <module name="org.jboss.logging"/>
+            <module name="org.jboss.logging.jul-to-slf4j-stub"/>
+            <module name="org.jboss.logmanager"/>
+            <module name="org.jboss.logmanager.log4j"/>
+
+            <!-- SLF4J versions du serveur (on utilise celles de Spring Boot) -->
+            <module name="org.slf4j"/>
+            <module name="org.slf4j.impl"/>
+            <module name="org.slf4j.jcl-over-slf4j"/>
+            <module name="org.slf4j.log4j-over-slf4j"/>
+
+            <!-- ========================================== -->
+            <!-- Log4j - éviter conflit avec Logback        -->
+            <!-- ========================================== -->
+            <module name="org.apache.log4j"/>
+            <module name="org.apache.commons.logging"/>
+
+            <!-- ========================================== -->
+            <!-- XML Processing - Jakarta XML               -->
+            <!-- ========================================== -->
+            <!-- WildFly 26 fournit Jakarta XML, pas besoin d'exclure -->
+            <!-- Spring Boot gère les versions compatibles  -->
+
+            <!-- ========================================== -->
+            <!-- Hibernate (Spring Data JPA gère)          -->
+            <!-- ========================================== -->
+            <!-- ATTENTION: NE PAS exclure, WildFly 26 fournit -->
+            <!-- une version compatible Java 17            -->
+
+            <!-- ========================================== -->
+            <!-- Validation (Jakarta Validation)            -->
+            <!-- ========================================== -->
+            <!-- ATTENTION: NE PAS exclure, WildFly 26 fournit -->
+            <!-- Jakarta Validation compatible              -->
+
+            <!-- ========================================== -->
+            <!-- Web (Jakarta Servlet)                     -->
+            <!-- ========================================== -->
+            <!-- ATTENTION: NE PAS exclure, WildFly 26 fournit -->
+            <!-- Jakarta Servlet v6 compatible             -->
+
+            <!-- ========================================== -->
+            <!-- Autres modules potentiellement conflictuels -->
+            <!-- ========================================== -->
+            <module name="org.jboss.as.logging"/>
+            <module name="org.jboss.as.configadmin"/>
+            <module name="org.jboss.staxmapper"/>
+        </exclusions>
+
+        <!-- ============================================== -->
+        <!-- Dépendances explicites si nécessaire         -->
+        <!-- ============================================== -->
+        <!-- Non nécessaire pour cette application        -->
+        <!-- Mais peut être utile si besoin de services   -->
+        <!-- WildFly spécifiques                          -->
+
+    </deployment>
+
+    <!-- ================================================ -->
+    <!-- Configuration globale (optionnelle)            -->
+    <!-- ================================================ -->
+    <!-- <module-alias>
+        <module name="deprecated.websockets"
+                 target-name="org.jboss.as.websockets"/>
+    </module-alias> -->
+
+</jboss-deployment-structure>

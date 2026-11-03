@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.5</version>
+        <relativePath/>
+    </parent>
+    
+    <groupId>ma.org.anp</groupId>
+    <artifactId>echanges-web-backend</artifactId>
+    <version>1.8.8-Final</version>
+    <packaging>war</packaging>
+    <name>echanges-web-backend</name>
+    <description>Backend Spring Boot pour EDI WEB avec authentification AD et JWT et MFA</description>
+    
+    <properties>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+        <!-- WildFly 27+ requis pour Jakarta EE 9+ (Spring Boot 3.x incompatible avec WildFly 10) -->
+        <wildfly.home>D:\anp-ws\wildfly27</wildfly.home>
+        <wildfly.port>9990</wildfly.port>
+        
+        <!-- ===== VERSIONS SÉCURITÉ ===== -->
+        <owasp-dependency-check.version>9.0.9</owasp-dependency-check.version>
+        <spotbugs.version>4.8.2.1</spotbugs.version>
+        <sonar.version>3.10.0.2594</sonar.version>
+        <checkstyle.version>10.14.0</checkstyle.version>
+        <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
+    </properties>
+    
+    <!-- Spring Boot 3.2.x gère Jackson 2.15.x+ nativement, BOM override supprimé -->
+    
+    <dependencies>
+        
+        <!-- ===== SPRING BOOT CORE ===== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <!-- Exclure Tomcat embarqué : déploiement sur WildFly -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <!-- Servlet API fournie par WildFly 27+ (Jakarta EE 9+) -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- ===== SECURITY ===== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        
+        <!-- ===== JPA ===== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        
+        <!-- ===== VALIDATION ===== -->
+        <!-- provided : fourni par WildFly 27+ (Jakarta Bean Validation 3.0) -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- ===== LDAP / Active Directory ===== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-ldap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ldap</groupId>
+            <artifactId>spring-ldap-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-ldap</artifactId>
+        </dependency>
+        
+        <!-- ===== DB2 iSeries JT400 ===== -->
+        <dependency>
+            <groupId>net.sf.jt400</groupId>
+            <artifactId>jt400</artifactId>
+            <version>11.1</version>
+        </dependency>
+        
+        <!-- ===== JWT ===== -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- ===== SWAGGER / SPRINGDOC ===== -->
+        <!-- 2.x : compatible Spring Boot 3.x + Jakarta EE 9+ -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+        
+        <!-- ===== LOMBOK ===== -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        
+        <!-- ===== DEV TOOLS ===== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        
+        <!-- ===== TEST ===== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+    </dependencies>
+    
+    <build>
+        <plugins>
+            
+            <!-- ============================================ -->
+            <!-- PLUGINS ESSENTIELS                           -->
+            <!-- ============================================ -->
+            
+            <!-- Spring Boot Maven Plugin -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            
+            <!-- Compiler Plugin : Java 17 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            
+            <!-- WildFly Maven Plugin 4.x (WildFly 27+ / Jakarta EE 9+) -->
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>4.2.2.Final</version>
+                <configuration>
+                    <jboss-home>${wildfly.home}</jboss-home>
+                    <port>${wildfly.port}</port>
+                    <filename>${project.build.finalName}.war</filename>
+                </configuration>
+            </plugin>
+            
+            <!-- ============================================ -->
+            <!-- PLUGINS SÉCURITÉ                             -->
+            <!-- ============================================ -->
+            
+            <!-- 1. OWASP Dependency Check -->
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${owasp-dependency-check.version}</version>
+                <configuration>
+                    <!-- Format de rapport -->
+                    <format>HTML</format>
+                    
+                    <!-- Répertoire de sortie -->
+                    <outputDirectory>${project.basedir}/target/dependency-check</outputDirectory>
+                    
+                    <!-- Sévérité à partir de laquelle le build échoue (7.0 = HIGH+CRITICAL) -->
+                    <failBuildOnCVSS>7.0</failBuildOnCVSS>
+                    
+                    <!-- Suppression des faux positifs -->
+                    <suppressionFile>${project.basedir}/dependency-check-suppressions.xml</suppressionFile>
+                    
+                    <!-- Auto-update de la base de données NVD -->
+                    <autoUpdate>true</autoUpdate>
+                    
+                    <!-- Analyser aussi les dépendances transitives -->
+                    <analyzers>
+                        <analyzer>
+                            <name>JarAnalyzer</name>
+                        </analyzer>
+                        <analyzer>
+                            <name>ClasspathAnalyzer</name>
+                        </analyzer>
+                    </analyzers>
+                    
+                    <!-- Exclure les dépendances de test -->
+                    <skipTestScope>true</skipTestScope>
+                    
+                    <!-- Exclure les plugins Maven -->
+                    <skipProvidedScope>false</skipProvidedScope>
+                    
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- 2. SpotBugs (détection de bugs Java) -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.version}</version>
+                <configuration>
+                    <!-- Niveau d'effort : Min, Default, Max -->
+                    <effort>Max</effort>
+                    
+                    <!-- Niveau de seuil : High, Medium, Low, Exp -->
+                    <threshold>Low</threshold>
+                    
+                    <!-- Générer rapport XML -->
+                    <xmlOutput>true</xmlOutput>
+                    
+                    <!-- Générer rapport HTML -->
+                    <htmlOutput>true</htmlOutput>
+                    
+                    <!-- Exclure les tests -->
+                    <includeTests>false</includeTests>
+                    
+                    <!-- Plugins de détection de sécurité -->
+                    <plugins>
+                        <plugin>
+                            <groupId>com.h3xstream.findsecbugs</groupId>
+                            <artifactId>findsecbugs-plugin</artifactId>
+                            <version>1.12.0</version>
+                        </plugin>
+                    </plugins>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <!-- Plugins supplémentaires de sécurité -->
+                    <dependency>
+                        <groupId>com.h3xstream.findsecbugs</groupId>
+                        <artifactId>findsecbugs-plugin</artifactId>
+                        <version>1.12.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            
+            <!-- 3. CheckStyle (contrôle de qualité du code) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
+                <configuration>
+                    <!-- Utiliser la configuration Google ou créer une custom -->
+                    <configLocation>google_checks.xml</configLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <failOnViolation>false</failOnViolation>
+                    <linkXRef>false</linkXRef>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            
+            <!-- 4. SonarQube (analyse statique complète) -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar.version}</version>
+            </plugin>
+            
+            <!-- 5. Maven Jar Plugin (vérification des manifestations) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>ma.org.anp.echanges.EchangesWebBackendApplication</mainClass>
+                            <!-- Ajout d'informations de sécurité dans le MANIFEST -->
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <!-- Pour éviter les attaques XSS -->
+                            <X-Content-Type-Options>nosniff</X-Content-Type-Options>
+                            <X-Frame-Options>DENY</X-Frame-Options>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            
+        </plugins>
+    </build>
+    
+    <!-- ============================================ -->
+    <!-- PROFILS POUR CI/CD                          -->
+    <!-- ============================================ -->
+    
+    <profiles>
+        <!-- Profil de sécurité complet (CI/CD) -->
+        <profile>
+            <id>security</id>
+            <build>
+                <plugins>
+                    <!-- Tous les plugins de sécurité activés -->
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profil de développement rapide -->
+        <profile>
+            <id>dev-fast</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Seulement les tests unitaires -->
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
+</project>

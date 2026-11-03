@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    
+    <!-- Propriétés configurables -->
+    <springProperty scope="context" name="LOG_PATH" source="app.logging.path" defaultValue="c:/LOG_console/web"/>
+    <springProperty scope="context" name="LOG_FILE" source="app.logging.file-name" defaultValue="echanges-web-backend"/>
+    <springProperty scope="context" name="MAX_FILE_SIZE" source="app.logging.max-file-size" defaultValue="10MB"/>
+    <springProperty scope="context" name="MAX_HISTORY" source="app.logging.max-history" defaultValue="30"/>
+    <springProperty scope="context" name="TOTAL_SIZE_CAP" source="app.logging.total-size-cap" defaultValue="1GB"/>
+    
+    <!-- Pattern de formatage des logs -->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%thread] %logger{36} - %msg%n"/>
+    
+    <!-- Appender Console (pour le développement) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    
+    <!-- Appender Fichier avec rotation journalière et par taille -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- Fichier actif -->
+        <file>${LOG_PATH}/${LOG_FILE}.log</file>
+        
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        
+        <!-- Politique de rotation -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Pattern pour les fichiers archivés : répertoire par jour -->
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/${LOG_FILE}.%i.log.gz</fileNamePattern>
+            
+            <!-- Taille maximale par fichier avant rotation -->
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            
+            <!-- Nombre de jours à conserver -->
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            
+            <!-- Taille totale maximale de tous les archives -->
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            
+            <!-- Nettoyage au démarrage de l'application -->
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        
+        <!-- Buffer pour améliorer les performances -->
+        <prudent>false</prudent>
+        <immediateFlush>true</immediateFlush>
+    </appender>
+    
+    <!-- Appender asynchrone pour améliorer les performances -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+    </appender>
+    
+    <!-- Configuration des niveaux de logs par package -->
+    
+    <!-- Logs de l'application -->
+    <logger name="ma.org.anp" level="DEBUG" additivity="false">
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+    
+    <!-- Logs Spring Security -->
+    <logger name="org.springframework.security" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+    
+    <!-- Logs Spring Web -->
+    <logger name="org.springframework.web" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+    
+    <!-- Logs Hibernate/JPA -->
+    <logger name="org.hibernate" level="WARN" additivity="false">
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+    
+    <!-- Logs LDAP -->
+    <logger name="org.springframework.ldap" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+    
+    <!-- Configuration root (par défaut) -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+    
+</configuration>

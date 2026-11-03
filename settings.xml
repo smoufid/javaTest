@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 
+          http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    
+    <!-- Configuration du repository local -->
+    <localRepository>D:\anp-ws\repo_maven</localRepository>
+    
+    <!-- Configuration des miroirs (optionnel) -->
+    <mirrors>
+        <mirror>
+            <id>central-mirror</id>
+            <name>Maven Central Mirror</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <mirrorOf>central</mirrorOf>
+        </mirror>
+    </mirrors>
+    
+    <!-- Configuration des profils -->
+    <profiles>
+        <profile>
+            <id>wildfly-deployment</id>
+            <properties>
+                <wildfly.home>D:\anp-ws\wildfly10</wildfly.home>
+                <wildfly.port>9990</wildfly.port>
+            </properties>
+        </profile>
+    </profiles>
+    
+    <!-- Activation du profil par défaut -->
+    <activeProfiles>
+        <activeProfile>wildfly-deployment</activeProfile>
+    </activeProfiles>
+    
+</settings>
